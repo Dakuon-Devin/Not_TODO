@@ -1,0 +1,61 @@
+
+> not-todo@0.1.0 test
+> vitest run src/integration/TaskWorkflow.test.tsx src/integration/AppState.test.tsx
+
+
+ RUN  v3.0.9 /home/ubuntu/repos/Not_TODO
+
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > タスクを追加してNotTodoとして選択し、理由を設定するワークフロー
+Toggling menu visibility, current state: [33mtrue[39m
+
+stdout | src/integration/AppState.test.tsx > アプリケーション状態の結合テスト > タスクの状態変更がlocalStorageに保存される
+Toggling menu visibility, current state: [33mtrue[39m
+
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > タスクを追加してNotTodoとして選択し、理由を設定するワークフロー
+Toggling form visibility, current state: [33mtrue[39m
+
+stdout | src/integration/AppState.test.tsx > アプリケーション状態の結合テスト > タスクの状態変更がlocalStorageに保存される
+Toggling form visibility, current state: [33mtrue[39m
+
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > タスクを追加してNotTodoとして選択し、理由を設定するワークフロー
+Closing form
+
+stdout | src/integration/AppState.test.tsx > アプリケーション状態の結合テスト > タスクの状態変更がlocalStorageに保存される
+Closing form
+
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > 複数のタスクをNotTodoとして選択し、理由を設定するワークフロー
+Toggling menu visibility, current state: [33mtrue[39m
+
+ ✓ src/integration/AppState.test.tsx (3 tests) 313ms
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > 複数のタスクをNotTodoとして選択し、理由を設定するワークフロー
+Toggling form visibility, current state: [33mtrue[39m
+
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > 複数のタスクをNotTodoとして選択し、理由を設定するワークフロー
+Closing form
+
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > 複数のタスクをNotTodoとして選択し、理由を設定するワークフロー
+Toggling menu visibility, current state: [33mtrue[39m
+
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > 複数のタスクをNotTodoとして選択し、理由を設定するワークフロー
+Toggling form visibility, current state: [33mtrue[39m
+
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > 複数のタスクをNotTodoとして選択し、理由を設定するワークフロー
+Closing form
+
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > 複数のタスクをNotTodoとして選択し、理由を設定するワークフロー
+Toggling menu visibility, current state: [33mtrue[39m
+
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > 複数のタスクをNotTodoとして選択し、理由を設定するワークフロー
+Toggling form visibility, current state: [33mtrue[39m
+
+stdout | src/integration/TaskWorkflow.test.tsx > タスク追加と無効化ワークフローのテスト > 複数のタスクをNotTodoとして選択し、理由を設定するワークフロー
+Closing form
+
+ ✓ src/integration/TaskWorkflow.test.tsx (2 tests) 614ms
+   ✓ タスク追加と無効化ワークフローのテスト > 複数のタスクをNotTodoとして選択し、理由を設定するワークフロー 333ms
+
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+   Start at  03:21:47
+   Duration  1.74s (transform 117ms, setup 308ms, collect 556ms, tests 927ms, environment 784ms, prepare 322ms)
+

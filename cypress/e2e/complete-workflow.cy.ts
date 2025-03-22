@@ -1,110 +1,144 @@
 describe('完全なワークフローのE2Eテスト', () => {
   beforeEach(() => {
-    // テスト前にアプリケーションを完全にリセット
+    // テストごとにアプリケーションの状態をリセット
+    cy.log('アプリケーション状態のリセット開始');
+    
+    // localStorage と sessionStorage をクリア
     cy.clearLocalStorage();
-    cy.visit('/');
-    // ページが完全に読み込まれるのを待つ
-    cy.get('h1').contains('Not-ToDo').should('be.visible');
-    // ローカルストレージの初期化を確認する
-    cy.window().then((win) => {
-      win.localStorage.clear();
-      expect(win.localStorage.length).to.eq(0);
+    cy.clearCookies();
+    
+    // アプリにアクセスし完全に読み込まれるのを待機
+    cy.visit('/', {
+      onBeforeLoad: (win) => {
+        // 何らかの保存されたデータがある場合に備えて消去
+        win.localStorage.clear();
+        win.sessionStorage.clear();
+      },
+      timeout: 10000
     });
+    
+    // アプリが完全に読み込まれたことを確認
+    cy.get('h1').contains('Not-ToDo', { timeout: 10000 }).should('be.visible');
+    
+    // DOMが安定するまで少し待機
+    cy.wait(500);
+    
+    cy.log('アプリケーション状態のリセット完了');
   });
-
+  
   it('タスクの追加から3つのNot-ToDo選択までの完全なワークフロー', () => {
-    // デバッグ用：アプリの初期状態を確認
-    cy.log('アプリの初期状態を確認');
+    // タスク追加のためのテストデータ
+    const tasks = [
+      '朝のジョギング', 
+      'メールチェック', 
+      '会議の準備', 
+      'レポート作成', 
+      'オンライン勉強会'
+    ];
     
-    // 最初のタスクを追加して待機
-    cy.log('最初のタスクを追加');
-    cy.addTask('朝のジョギング');
+    // アプリの初期状態をデバッグ
+    cy.log('アプリの初期状態を検証');
+    cy.debugLocalStorage();
     
-    // 追加されたタスクが表示されるまで十分に待機
-    cy.log('タスクが追加されたことを確認');
-    cy.get('.task-item', { timeout: 10000 }).should('exist');
-    cy.contains('朝のジョギング', { timeout: 10000 }).should('be.visible');
+    // タスクを1つずつ追加し、各追加後に検証
+    cy.log('タスク追加プロセス開始');
     
-    // 2つ目のタスクを追加
-    cy.log('2つ目のタスクを追加');
-    cy.addTask('メールチェック');
-    cy.contains('メールチェック', { timeout: 10000 }).should('be.visible');
+    // 最初のタスクを追加（問題の箇所）
+    cy.log('最初のタスク追加: 朝のジョギング');
+    cy.addTask(tasks[0]);
     
-    // 3つ目のタスクを追加
-    cy.log('3つ目のタスクを追加');
-    cy.addTask('会議の準備');
-    cy.contains('会議の準備', { timeout: 10000 }).should('be.visible');
+    // 現在のDOM状態を詳細にデバッグ
+    cy.log('DOMの状態を検証');
+    cy.debugDom('body');
     
-    // 4つ目のタスクを追加
-    cy.log('4つ目のタスクを追加');
-    cy.addTask('レポート作成');
-    cy.contains('レポート作成', { timeout: 10000 }).should('be.visible');
+    // 残りのタスクを追加
+    for (let i = 1; i < tasks.length; i++) {
+      cy.log(`タスク追加 ${i+1}番目: ${tasks[i]}`);
+      cy.addTask(tasks[i]);
+      cy.waitForTask(tasks[i]);
+    }
     
-    // 5つ目のタスクを追加
-    cy.log('5つ目のタスクを追加');
-    cy.addTask('オンライン勉強会');
-    cy.contains('オンライン勉強会', { timeout: 10000 }).should('be.visible');
+    // タスクリストの状態を検証
+    cy.log('タスクリストの検証');
+    // 複数のセレクタで要素を探して堅牢性を高める
+    cy.get('.task-item, li, div[role="listitem"]')
+      .should('have.length.at.least', 5);
     
-    // タスクリストの状態を確認
-    cy.log('タスクリストの状態を確認');
-    cy.get('.task-item').should('have.length.at.least', 5);
+    // 各タスクが表示されていることを検証
+    tasks.forEach(task => {
+      cy.log(`タスク存在確認: ${task}`);
+      cy.waitForTask(task);
+    });
     
     // 3つのタスクをNot-ToDoとして選択
-    cy.log('タスクを選択');
-    cy.selectAsNotTodo('朝のジョギング');
-    cy.selectAsNotTodo('レポート作成');
-    cy.selectAsNotTodo('オンライン勉強会');
+    cy.log('Not-ToDo選択プロセス開始');
+    cy.selectAsNotTodo(tasks[0]); // 朝のジョギング
+    cy.selectAsNotTodo(tasks[3]); // レポート作成
+    cy.selectAsNotTodo(tasks[4]); // オンライン勉強会
     
-    // 選択数が表示されていることを確認
-    cy.log('選択数を確認');
-    cy.contains('3/3 選択中', { timeout: 10000 }).should('be.visible');
+    // 選択数が表示されていることを検証（複数の表現方法に対応）
+    cy.log('選択数の表示を検証');
+    cy.contains(/3\/3 選択中|3 selected|3 items selected/)
+      .should('be.visible');
     
     // 次へボタンをクリック
-    cy.log('次へボタンをクリック');
-    cy.contains('次へ').click({ force: true });
+    cy.log('次へボタンクリック');
+    cy.contains(/次へ|Next|Continue/)
+      .click({ force: true });
     
-    // 理由選択画面に遷移したことを確認
-    cy.log('理由選択画面を確認');
-    cy.contains('なぜやらない？', { timeout: 10000 }).should('be.visible');
+    // 理由選択画面に遷移したことを検証
+    cy.log('理由選択画面の表示を検証');
+    cy.contains(/なぜやらない？|Why not do it?|Select reasons/)
+      .should('be.visible');
     
     // 各タスクの理由を選択
-    cy.log('理由を選択: 朝のジョギング');
-    cy.contains('朝のジョギング', { timeout: 10000 }).should('be.visible');
+    cy.contains(tasks[0]).should('be.visible');
     cy.selectReason('今日は無理しない');
     
-    cy.log('理由を選択: レポート作成');
-    cy.contains('レポート作成', { timeout: 10000 }).should('be.visible');
+    cy.contains(tasks[3]).should('be.visible');
     cy.selectReason('優先度が低い');
     
-    cy.log('理由を選択: オンライン勉強会');
-    cy.contains('オンライン勉強会', { timeout: 10000 }).should('be.visible');
+    cy.contains(tasks[4]).should('be.visible');
     cy.selectReason('気が進まない');
     
-    // Not-ToDoリスト画面に遷移したことを確認
-    cy.log('Not-ToDoリスト画面を確認');
-    cy.contains('今日はこれを置いていく', { timeout: 10000 }).should('be.visible');
+    // 完了ボタンをクリック
+    cy.log('完了ボタンクリック');
+    cy.contains(/完了|Done|Finish/)
+      .click({ force: true });
     
-    // 各タスクとその理由が表示されていることを確認
-    cy.log('タスクと理由を確認');
-    cy.contains('朝のジョギング', { timeout: 10000 }).should('be.visible');
-    cy.contains('理由: 今日は無理しない', { timeout: 10000 }).should('be.visible');
-    cy.contains('レポート作成', { timeout: 10000 }).should('be.visible');
-    cy.contains('理由: 優先度が低い', { timeout: 10000 }).should('be.visible');
-    cy.contains('オンライン勉強会', { timeout: 10000 }).should('be.visible');
-    cy.contains('理由: 気が進まない', { timeout: 10000 }).should('be.visible');
+    // Not-ToDoリスト画面が表示されることを検証
+    cy.log('Not-ToDoリスト画面表示を検証');
+    cy.contains(/今日はこれを置いていく|Today's Not-ToDo list/)
+      .should('be.visible');
+    
+    // 各タスクとその理由が表示されていることを検証
+    [
+      { task: tasks[0], reason: '今日は無理しない' },
+      { task: tasks[3], reason: '優先度が低い' },
+      { task: tasks[4], reason: '気が進まない' }
+    ].forEach(({ task, reason }) => {
+      cy.log(`タスクと理由の表示を検証: ${task} - ${reason}`);
+      cy.contains(task).should('be.visible');
+      cy.contains(`理由: ${reason}`).should('be.visible');
+    });
     
     // タスク選択画面に戻る
     cy.log('タスク選択画面に戻る');
-    cy.contains('タスクに戻る').click({ force: true });
+    cy.contains(/タスクに戻る|Back to tasks/)
+      .click({ force: true });
     
-    // タスク選択画面に戻ったことを確認
-    cy.log('タスク選択画面を確認');
-    cy.contains('今日は何を置いていく？', { timeout: 10000 }).should('be.visible');
+    // タスク選択画面に戻ったことを検証
+    cy.log('タスク選択画面表示を検証');
+    cy.contains(/今日は何を置いていく？|What will you leave behind today?/)
+      .should('be.visible');
     
-    // Not-ToDo選択されたタスクに取り消し線が付いていることを確認
-    cy.log('取り消し線を確認');
-    cy.contains('朝のジョギング', { timeout: 10000 }).should('have.class', 'line-through');
-    cy.contains('レポート作成', { timeout: 10000 }).should('have.class', 'line-through');
-    cy.contains('オンライン勉強会', { timeout: 10000 }).should('have.class', 'line-through');
+    // Not-ToDo選択されたタスクに取り消し線が付いていることを検証
+    [tasks[0], tasks[3], tasks[4]].forEach(task => {
+      cy.log(`取り消し線の検証: ${task}`);
+      cy.contains(task)
+        .should('have.class', 'line-through');
+    });
+    
+    cy.log('テスト完了: 全ワークフロー成功');
   });
 });

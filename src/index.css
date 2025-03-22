@@ -1,0 +1,52 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-sand-50 text-gray-800 min-h-screen;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  h1, h2, h3, h4 {
+    @apply font-medium;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-xl shadow-sm p-5 border border-gray-100;
+  }
+  
+  .btn {
+    @apply px-4 py-2 rounded-full transition-colors duration-200 
+           font-medium text-center;
+  }
+  
+  .btn-primary {
+    @apply btn bg-sand-200 text-sand-800 hover:bg-sand-300;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-gray-100 text-gray-600 hover:bg-gray-200;
+  }
+  
+  .task-item {
+    @apply p-3 my-2 rounded-lg border border-gray-100 bg-white
+           flex items-center gap-3 transition-all duration-200;
+  }
+  
+  .task-item.selected {
+    @apply bg-gray-100 text-gray-500;
+  }
+  
+  .reason-btn {
+    @apply px-4 py-2 rounded-full border border-gray-200 
+           text-gray-600 hover:bg-gray-50 transition-colors;
+  }
+  
+  .not-todo-item {
+    @apply p-4 my-3 rounded-lg bg-gray-50 border border-gray-200;
+  }
+}

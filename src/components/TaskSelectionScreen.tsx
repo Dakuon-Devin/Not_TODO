@@ -1,25 +1,20 @@
 // src/components/TaskSelectionScreen.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import { Task, AppScreen } from '@/types';
 import { motion } from 'framer-motion';
-import { FiCircle, FiCheckCircle, FiPlus } from 'react-icons/fi';
-import { generateId, getTodayDate } from '@/utils/storage';
+import { FiCircle, FiCheckCircle } from 'react-icons/fi';
 
 interface TaskSelectionScreenProps {
   tasks: Task[];
   onTasksChange: (tasks: Task[]) => void;
   onScreenChange: (screen: AppScreen) => void;
-  selectedTask?: Task;
 }
 
 const TaskSelectionScreen: React.FC<TaskSelectionScreenProps> = ({
   tasks,
   onTasksChange,
-  onScreenChange,
-  selectedTask
+  onScreenChange
 }) => {
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-  
   // Not-ToDo として選択されたタスクの数
   const selectedCount = tasks.filter(task => task.isNotToDo).length;
   const MAX_SELECTION = 3;
@@ -47,22 +42,6 @@ const TaskSelectionScreen: React.FC<TaskSelectionScreenProps> = ({
     onTasksChange(updatedTasks);
   };
   
-  // 新しいタスクを追加
-  const addNewTask = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTaskTitle.trim()) return;
-    
-    const newTask: Task = {
-      id: generateId(),
-      title: newTaskTitle.trim(),
-      isNotToDo: false,
-      createdAt: getTodayDate()
-    };
-    
-    onTasksChange([...tasks, newTask]);
-    setNewTaskTitle('');
-  };
-  
   // 次の画面へ進む（理由選択へ）
   const goToReasonSelection = () => {
     const firstNotTodo = tasks.find(task => task.isNotToDo && !task.reason);
@@ -84,26 +63,6 @@ const TaskSelectionScreen: React.FC<TaskSelectionScreenProps> = ({
       <h2 className="text-xl text-center text-gray-700 mb-6">
         今日は何を置いていく？
       </h2>
-      
-      {/* タスク入力フォーム */}
-      <form onSubmit={addNewTask} className="mb-6">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            placeholder="新しいタスクを追加"
-            className="flex-1 p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-sand-300"
-          />
-          <button 
-            type="submit"
-            className="p-2 bg-sand-100 text-sand-800 rounded-lg hover:bg-sand-200"
-            disabled={!newTaskTitle.trim()}
-          >
-            <FiPlus size={20} />
-          </button>
-        </div>
-      </form>
       
       {/* タスクリスト */}
       <div className="mb-6">

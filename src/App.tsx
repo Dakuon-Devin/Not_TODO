@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Task, AppScreen } from '@/types';
 import { getTasks, saveTasks } from '@/utils/storage';
+import Header from '@/components/Header';
 import TaskSelectionScreen from '@/components/TaskSelectionScreen';
 import ReasonSelectionScreen from '@/components/ReasonSelectionScreen';
 import NotTodoListScreen from '@/components/NotTodoListScreen';
@@ -33,6 +34,12 @@ function App() {
     setCurrentScreen(screen);
   };
   
+  // 新しいタスクを追加
+  const handleAddTask = (newTask: Task) => {
+    const updatedTasks = [...tasks, newTask];
+    handleTasksChange(updatedTasks);
+  };
+  
   // ローディング中の表示
   if (isLoading) {
     return (
@@ -44,14 +51,7 @@ function App() {
   
   return (
     <div className="min-h-screen py-8 px-4">
-      <header className="mb-8">
-        <h1 className="text-center text-2xl font-medium text-gray-800">
-          Not-ToDo
-        </h1>
-        <p className="text-center text-gray-500 text-sm mt-1">
-          今日は、やらないことを決める日
-        </p>
-      </header>
+      <Header onAddTask={handleAddTask} />
       
       <main>
         {currentScreen === AppScreen.TASK_SELECTION && (

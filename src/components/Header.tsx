@@ -159,8 +159,17 @@ const Header: React.FC<HeaderProps> = ({ onAddTask }) => {
               </button>
               <button
                 type="submit"
-                disabled={!newTaskTitle.trim()}
-                className="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+                className={`px-3 py-1 text-sm text-white rounded-lg ${
+                  newTaskTitle.trim() 
+                    ? "bg-sand-500 hover:bg-sand-600" 
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+                onClick={(e) => {
+                  if (!newTaskTitle.trim()) {
+                    e.preventDefault();
+                    return;
+                  }
+                }}
               >
                 追加
               </button>

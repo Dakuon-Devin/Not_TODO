@@ -43,6 +43,16 @@ npm install
 npm run dev
 ```
 
+## E2Eテスト
+
+```bash
+# E2Eテストを対話モードで実行（Cypressのブラウザを開く）
+npm run cypress:open
+
+# E2Eテストをヘッドレスモードで実行
+npm run test:e2e
+```
+
 ## ディレクトリ構造
 
 ```

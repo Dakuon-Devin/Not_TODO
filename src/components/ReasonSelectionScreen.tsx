@@ -74,6 +74,7 @@ const ReasonSelectionScreen: React.FC<ReasonSelectionScreenProps> = ({
             onClick={() => selectReason(reason)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            data-testid={`reason-option-${reason}`}
           >
             {reason}
           </motion.button>
@@ -87,6 +88,17 @@ const ReasonSelectionScreen: React.FC<ReasonSelectionScreenProps> = ({
           onClick={skipReason}
         >
           理由を記録しない
+        </button>
+      </div>
+      
+      {/* 完了ボタン - 理由選択後に表示 */}
+      <div className="text-center mt-6">
+        <button 
+          className="btn-primary w-full"
+          onClick={() => onScreenChange(AppScreen.NOT_TODO_LIST)}
+          data-testid="complete-reason-selection"
+        >
+          完了
         </button>
       </div>
     </motion.div>

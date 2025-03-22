@@ -46,7 +46,7 @@ const NotTodoListScreen: React.FC<NotTodoListScreenProps> = ({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <h2 className="text-xl text-center text-gray-700 mb-6">
+      <h2 className="text-xl text-center text-gray-700 mb-6" data-testid="not-todo-list-title">
         今日はこれを置いていく
       </h2>
       

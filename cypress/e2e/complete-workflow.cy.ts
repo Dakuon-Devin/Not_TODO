@@ -3,21 +3,26 @@ describe('完全なワークフローのE2Eテスト', () => {
     // テスト前にアプリケーションをリセット
     cy.clearLocalStorage();
     cy.visit('/');
+    // ページが完全に読み込まれるのを待つ
+    cy.get('h1').contains('Not-ToDo').should('be.visible');
   });
 
   it('タスクの追加から3つのNot-ToDo選択までの完全なワークフロー', () => {
     // 5つのタスクを追加
     cy.addTask('朝のジョギング');
-    cy.addTask('メールチェック');
-    cy.addTask('会議の準備');
-    cy.addTask('レポート作成');
-    cy.addTask('オンライン勉強会');
-    
     // タスクが追加されたことを確認
     cy.contains('朝のジョギング').should('exist');
+    
+    cy.addTask('メールチェック');
     cy.contains('メールチェック').should('exist');
+    
+    cy.addTask('会議の準備');
     cy.contains('会議の準備').should('exist');
+    
+    cy.addTask('レポート作成');
     cy.contains('レポート作成').should('exist');
+    
+    cy.addTask('オンライン勉強会');
     cy.contains('オンライン勉強会').should('exist');
     
     // 3つのタスクをNot-ToDoとして選択

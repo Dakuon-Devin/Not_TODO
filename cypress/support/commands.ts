@@ -85,13 +85,27 @@ Cypress.Commands.add('waitForTask', (taskName: string, options = {}) => {
 Cypress.Commands.add('selectAsNotTodo', (taskName: string) => {
   cy.log(`Not-ToDo選択開始: "${taskName}"`);
   
-  // まずタスクが存在することを確認
-  cy.waitForTask(taskName);
+  // 最初にタスクテキストを含む要素を探す
+  cy.contains(taskName, { timeout: 10000 }).then($element => {
+    if ($element.length === 0) {
+      throw new Error(`タスク "${taskName}" が見つかりません`);
+    }
+    
+    // タスク要素の親を特定 (TaskItem コンポーネント)
+    const $taskItem = $element.closest('.task-item, [data-testid^="task-item"]');
+    
+    if ($taskItem.length > 0) {
+      // 親要素内のチェックボックスをクリック
+      cy.wrap($taskItem).within(() => {
+        cy.get('input[type="checkbox"]').click({ force: true });
+      });
+    } else {
+      // 親が見つからない場合は直接要素をクリック
+      cy.wrap($element).click({ force: true });
+    }
+  });
   
-  // タスク要素をクリック
-  cy.contains(taskName).click({ force: true });
-  
-  cy.log(`Not-ToDo選択完了: "${taskName}"`);
+  cy.log(`タスク選択完了: "${taskName}"`);
 });
 
 /**
@@ -114,6 +128,26 @@ Cypress.Commands.add('selectReason', (reason: string) => {
   cy.log(`理由選択完了: "${reason}"`);
 });
 
+/**
+ * タスクと理由の表示を確認するコマンド
+ * 
+ * Args:
+ *     taskName: 確認するタスクの名前
+ *     reason: 確認する理由
+ * 
+ * Returns:
+ *     Cypress チェーン
+ */
+Cypress.Commands.add('verifyTaskAndReason', (taskName: string, reason: string) => {
+  cy.log(`タスクと理由の確認: "${taskName}" - "${reason}"`);
+  
+  // タスク名を含む要素を探す
+  cy.contains(taskName, { timeout: 10000 }).should('be.visible');
+  
+  // 理由テキストを探す (複数のフォーマットに対応)
+  cy.contains(new RegExp(`(理由|Reason).*${reason}`)).should('be.visible');
+});
+
 // TSの型定義
 declare global {
   namespace Cypress {
@@ -122,6 +156,7 @@ declare global {
       waitForTask(taskName: string, options?: object): Chainable<Element>;
       selectAsNotTodo(taskName: string): Chainable<Element>;
       selectReason(reason: string): Chainable<Element>;
+      verifyTaskAndReason(taskName: string, reason: string): Chainable<Element>;
     }
   }
 }

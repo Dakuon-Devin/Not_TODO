@@ -1,6 +1,6 @@
 // src/components/Header.tsx
-import React, { useState } from 'react';
-import { FiPlus, FiX } from 'react-icons/fi';
+import React, { useState, useRef, useEffect } from 'react';
+import { FiPlus, FiX, FiMenu } from 'react-icons/fi';
 import { Task } from '@/types';
 import { generateId, getTodayDate } from '@/utils/storage';
 
@@ -10,12 +10,19 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onAddTask }) => {
   const [showForm, setShowForm] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // フォームの表示/非表示を切り替え
   const toggleForm = () => {
     console.log('Toggling form visibility, current state:', !showForm);
     setShowForm(!showForm);
+    // フォームを開くときはメニューを閉じる
+    if (!showForm) {
+      setShowMenu(false);
+    }
   };
 
   // フォームを閉じる
@@ -42,6 +49,31 @@ const Header: React.FC<HeaderProps> = ({ onAddTask }) => {
     closeForm();
   };
 
+  // メニュー以外の部分がクリックされたらメニューを閉じる
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current && 
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current && 
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setShowMenu(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // NotionAPI連携の処理（現在は仮の実装）
+  const handleNotionIntegration = () => {
+    alert('NotionAPIとの連携は将来的に実装予定です。');
+    setShowMenu(false);
+  };
+
   return (
     <div className="mb-8 relative">
       <header className="mb-4">
@@ -50,18 +82,46 @@ const Header: React.FC<HeaderProps> = ({ onAddTask }) => {
             Not-ToDo
           </h1>
           <button
-            onClick={toggleForm}
-            className="px-3 py-1 rounded-lg bg-blue-100 hover:bg-blue-200 focus:outline-none text-blue-800 flex items-center"
+            ref={buttonRef}
+            onClick={() => {
+              console.log('Toggling menu visibility, current state:', !showMenu);
+              setShowMenu(!showMenu);
+            }}
+            className="px-3 py-1 rounded-lg bg-sand-200 hover:bg-sand-300 focus:outline-none text-sand-800 flex items-center"
             type="button"
           >
-            <FiPlus className="mr-1" />
-            タスク追加
+            <FiMenu className="text-sand-700" size={20} />
           </button>
         </div>
         <p className="text-center text-gray-500 text-sm mt-1">
           今日は、やらないことを決める日
         </p>
       </header>
+      
+      {/* ハンバーガーメニュー */}
+      {showMenu && (
+        <div 
+          ref={menuRef}
+          className="absolute right-0 top-12 bg-white rounded-lg shadow-lg border border-gray-200 w-48 z-50 overflow-hidden"
+        >
+          <div className="py-1">
+            <button
+              onClick={() => { toggleForm(); setShowMenu(false); }}
+              className="w-full px-4 py-2 text-left hover:bg-sand-100 text-gray-700 flex items-center"
+            >
+              <FiPlus className="mr-2 text-sand-500" />
+              タスクを追加
+            </button>
+            <button
+              onClick={handleNotionIntegration}
+              className="w-full px-4 py-2 text-left hover:bg-sand-100 text-gray-700 flex items-center"
+            >
+              <FiPlus className="mr-2 text-sand-500" />
+              NotionAPIと連携
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* タスク追加フォーム（インライン表示） */}
       {showForm && (
